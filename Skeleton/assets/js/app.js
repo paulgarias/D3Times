@@ -29,6 +29,8 @@ var chartGroup = svg.append("g")
   .attr("transform", `translate(${margin.left}, ${margin.top})`);
 
 
+var xScale = d3.scaleLinear()
+var yLinearScale = d3.scaleLinear()
 
 d3.csv("BRFSS_correlated.csv", function(error, response) {
 	var  data = response.map( function(d) {return {"state":d.States, "depression":d.DepressionYes, "id":d.Id, "unableToWork":d.unableToWork};} );
@@ -43,12 +45,10 @@ d3.csv("BRFSS_correlated.csv", function(error, response) {
 	//console.log(maxWork);
 	//console.log(minWork);
 
-	var xScale = d3.scaleLinear()
-		.domain([minDepression-2, maxDepression+2])
+	xScale.domain([minDepression-2, maxDepression+2])
 		.range([0,width])
 	
-	var yLinearScale = d3.scaleLinear()
-		.domain([minWork-2,maxWork+2])
+	yLinearScale.domain([minWork-2,maxWork+2])
 		.range([height,0])
 
 	var leftAxis = d3.axisLeft(yLinearScale);
@@ -56,6 +56,7 @@ d3.csv("BRFSS_correlated.csv", function(error, response) {
 
 	chartGroup.append("g")
 		.attr("transform", `translate(0, ${height})`)
+		.attr("id","xAxisGroup")
 		.call(bottomAxis)
 		.attr("font-size","14px");
 	
@@ -71,6 +72,7 @@ d3.csv("BRFSS_correlated.csv", function(error, response) {
 		.attr("cx", function(d) {return xScale(d.depression);})
 		.attr("cy", function(d) {return yLinearScale(d.unableToWork);}) 
 		.attr("r", "14")
+		.attr("id","circleGroup")
 		.style("fill", "blue")
 		.style("opacity","0.7");
 
@@ -82,22 +84,35 @@ d3.csv("BRFSS_correlated.csv", function(error, response) {
 		.attr("x", function(d) {return xScale(d.depression)-7;})
 		.attr("y", function(d) {return yLinearScale(d.unableToWork)+3.5;})
 		.text( function(d) {return d.state; })
+		.attr("id","textGroup")
 		.attr("font-family", "sans-serif")
 		.attr("font-size","10px")
 		.attr("fill","white");
-	
-	
 });
 
 function resize() {
 	width = parseInt(d3.select("#chart").style("width"), 10);
 	width = width - margin.left - margin.right;
+
 	d3.select(chartGroup.node().parentNode)
 		.style("width", (width + margin.left+margin.right)+'px');
 
-	console.log(d3.select("svg").style("width"));
+	xScale.range([0,width])
 
+	var bottomAxis = d3.axisBottom(xScale);
+
+	chartGroup.select("#xAxisGroup").remove();
+	chartGroup.append("g")
+		.attr("transform", `translate(0, ${height})`)
+		.attr("id","xAxisGroup")
+		.call(bottomAxis)
+		.attr("font-size","14px");
+
+	chartGroup.selectAll("circle")
+		.attr("cx", function(d) { return xScale(d.depression); });
+
+	chartGroup.selectAll("text#textGroup")
+		.attr("x", function(d) { return xScale(d.depression)-7; });
 };
 
 d3.select(window).on('resize', resize);
-
