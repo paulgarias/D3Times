@@ -8,8 +8,8 @@ var svgWidth = 960;
 var svgHeight = 500;
 
 var margin = {
-  top: 20,
-  right: 40,
+  top: 60,
+  right: 50,
   bottom: 60,
   left: 50
 };
@@ -28,9 +28,14 @@ var svg = d3
 var chartGroup = svg.append("g")
   .attr("transform", `translate(${margin.left}, ${margin.top})`);
 
-
 var xScale = d3.scaleLinear()
 var yLinearScale = d3.scaleLinear()
+
+
+var tool_tip = d3.tip()
+      .attr("class", "d3-tip")
+      .offset([-8, 0])
+      .html(function(d) { return "State: " + d.state; });
 
 d3.csv("BRFSS_correlated.csv", function(error, response) {
 	var  data = response.map( function(d) {return {"state":d.States, "depression":d.DepressionYes, "id":d.Id, "unableToWork":d.unableToWork};} );
@@ -53,16 +58,32 @@ d3.csv("BRFSS_correlated.csv", function(error, response) {
 
 	var leftAxis = d3.axisLeft(yLinearScale);
 	var bottomAxis = d3.axisBottom(xScale);
+	chartGroup.call(tool_tip)
 
 	chartGroup.append("g")
 		.attr("transform", `translate(0, ${height})`)
 		.attr("id","xAxisGroup")
 		.call(bottomAxis)
 		.attr("font-size","14px");
+
+	chartGroup.append("text")
+		.attr("x", width/2)
+		.attr("y",height+margin.top/2+margin.bottom/2-12)
+		.style("text-anchor","middle")
+		.attr("id","xLabel")
+		.text("% rate of depression");
 	
 	chartGroup.append("g")
 		.call(leftAxis)
 		.attr("font-size","14px");
+
+	chartGroup.append("text")
+		.attr('transform', 'rotate(-90)')
+		.attr("x", -(height/2) )
+		.attr("y", -margin.left/2)
+		.style("text-anchor", "middle")
+		.attr("id","yLabel")
+		.text("% Unable to Work");
 
 	chartGroup.append("g")
 		.selectAll("circle")
@@ -72,9 +93,11 @@ d3.csv("BRFSS_correlated.csv", function(error, response) {
 		.attr("cx", function(d) {return xScale(d.depression);})
 		.attr("cy", function(d) {return yLinearScale(d.unableToWork);}) 
 		.attr("r", "14")
-		.attr("id","circleGroup")
+		.attr("id",function(d) {return "circle"+d.state;})
 		.style("fill", "blue")
-		.style("opacity","0.7");
+		.style("opacity","0.7")
+		.on('mouseover', tool_tip.show)
+		.on('mouseout', tool_tip.hide);
 
 	chartGroup.append("g")
 		.selectAll("text")
@@ -113,6 +136,9 @@ function resize() {
 
 	chartGroup.selectAll("text#textGroup")
 		.attr("x", function(d) { return xScale(d.depression)-7; });
+
+	chartGroup.select("#xLabel")
+		.attr("x",width/2);
 };
 
 d3.select(window).on('resize', resize);
