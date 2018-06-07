@@ -4,7 +4,7 @@
 // =========
 // Follow your written instructions and create a scatter plot with D3.js.
 
-var svgWidth = 960;
+var svgWidth = window.innerWidth;
 var svgHeight = 500;
 
 var margin = {
@@ -37,10 +37,13 @@ var bottomAxis = d3.axisBottom(xScale);
 var yDataSelected;
 
 var tool_tip = d3.tip()
-      .attr("class", "d3-tip")
-      .offset([-8, 0])
-      .html(function(d) { 
-		return "State: " + d.state + "<br> % Depr: " + d.depression + "% Employment Class: "+ d.unableToWork; });
+	.attr("class", "d3-tip")
+	.offset([-8, 0])
+	.html(function(d) { 
+		return  "State: " + d.state + 
+			"<br> % Depression: " + d.depression + 
+			"<br> % Unable to work: "+ d.retired; 
+	});
 
 function onClickYLabels(data) {
 	d3.select('#yHomemaker').on('click', function() {
