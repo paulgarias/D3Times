@@ -1,3 +1,11 @@
 /* Students:
  * =========
  * Add styling to your d3 chart with this file. */
+
+text.selected {
+	fill: #000000;
+}
+
+text.unselected {
+	fill: #999999;
+}
