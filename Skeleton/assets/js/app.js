@@ -34,7 +34,7 @@ var yLinearScale = d3.scaleLinear()
 var leftAxis   = d3.axisLeft(yLinearScale);
 var bottomAxis = d3.axisBottom(xScale);
 
-var yDataSelected;
+var timeDuration = 750;
 
 var tool_tip = d3.tip()
 	.attr("class", "d3-tip")
@@ -53,15 +53,15 @@ function onClickYLabels(data) {
 		yLinearScale.domain([minWork-2,maxWork+2])
 		chartGroup.select("#leftAxis")
 			.transition()
+			.duration(timeDuration)
 			.call(leftAxis);
-		console.log(this)	
 		document.querySelector(".selected").setAttribute("class","unselected")
 		this.setAttribute("class","selected")
-		console.log(data);
 		var newText = chartGroup.selectAll("#textGroup").data(data)
 		newText.enter().append("text")
 			.merge(newText)
 			.transition()
+			.duration(timeDuration)
 			.attr("x", function(d) {return xScale(d.depression)-7;})
 			.attr("y", function(d) {return yLinearScale(d.homemaker)+3.5;})
 		
@@ -69,6 +69,7 @@ function onClickYLabels(data) {
 		newScatter.enter().append("circle")
 			.merge(newScatter)
 			.transition()
+			.duration(timeDuration)
 			.attr("cx", function(d) {return xScale(d.depression);})
 			.attr("cy", function(d) {return yLinearScale(d.homemaker);});
 		tool_tip.html(function(d) {
@@ -80,23 +81,23 @@ function onClickYLabels(data) {
 
 	});
 	d3.select('#yRetired').on('click', function() {
-		yDataSelected = "#yRetired";
 		var maxWork = d3.max(data.map(data=>Number(data.retired)));
         	var minWork = d3.min(data.map(data=>Number(data.retired)));
 
 		yLinearScale.domain([minWork-2,maxWork+2])
 		chartGroup.select("#leftAxis")
 			.transition()
+			.duration(timeDuration)
 			.call(leftAxis);
 
 		document.querySelector(".selected").setAttribute("class","unselected")
 		this.setAttribute("class","selected")
 
-		console.log(data);
 		var newText = chartGroup.selectAll("#textGroup").data(data)
 		newText.enter().append("text")
 			.merge(newText)
 			.transition()
+			.duration(timeDuration)
 			.attr("x", function(d) {return xScale(d.depression)-7;})
 			.attr("y", function(d) {return yLinearScale(d.retired)+3.5;})
 
@@ -104,6 +105,7 @@ function onClickYLabels(data) {
 		newScatter.enter().append("circle")
 			.merge(newScatter)
 			.transition()
+			.duration(timeDuration)
 			.attr("cx", function(d) {return xScale(d.depression);})
 			.attr("cy", function(d) {return yLinearScale(d.retired);});
 
@@ -122,16 +124,17 @@ function onClickYLabels(data) {
 		yLinearScale.domain([minWork-2,maxWork+2])
 		chartGroup.select("#leftAxis")
 			.transition()
+			.duration(timeDuration)
 			.call(leftAxis);
 
 		document.querySelector(".selected").setAttribute("class","unselected")
 		this.setAttribute("class","selected")
 		
-		console.log(data);
 		var newText = chartGroup.selectAll("#textGroup").data(data)
 		newText.enter().append("text")
 			.merge(newText)
 			.transition()
+			.duration(timeDuration)
 			.attr("x", function(d) {return xScale(d.depression)-7;})
 			.attr("y", function(d) {return yLinearScale(d.unableToWork)+3.5;})
 		
@@ -139,6 +142,7 @@ function onClickYLabels(data) {
 		newScatter.enter().append("circle")
 			.merge(newScatter)
 			.transition()
+			.duration(timeDuration)
 			.attr("cx", function(d) {return xScale(d.depression);})
 			.attr("cy", function(d) {return yLinearScale(d.unableToWork);});
 
@@ -153,7 +157,6 @@ function onClickYLabels(data) {
 
 d3.csv("BRFSS_correlated.csv", function(error, response) {
 	var  data = response.map( function(d) {return {"state":d.States,"retired":d.Retired,"homemaker":d.Homemaker, "depression":d.DepressionYes, "id":d.Id, "unableToWork":d.unableToWork};} );
-	//console.log(data);
 	
 	var maxDepression = d3.max(data.map(data=>Number(data.depression)));
 	var minDepression = d3.min(data.map(data=>Number(data.depression)));
@@ -161,8 +164,6 @@ d3.csv("BRFSS_correlated.csv", function(error, response) {
 	var maxWork = d3.max(data.map(data=>Number(data.unableToWork)));
 	var minWork = d3.min(data.map(data=>Number(data.unableToWork)));
 
-	//console.log(maxWork);
-	//console.log(minWork);
 
 	xScale.domain([minDepression-2, maxDepression+2])
 		.range([0,width])
@@ -243,8 +244,6 @@ d3.csv("BRFSS_correlated.csv", function(error, response) {
 		.attr("cy", function(d) {return yLinearScale(d.unableToWork);}) 
 		.attr("r", "14")
 		.attr("id",function(d) {return "circle"+d.state;})
-		.style("fill", "gray")
-		.style("opacity","0.5")
 		.on('mouseover', tool_tip.show)
 		.on('mouseout', tool_tip.hide);
 
